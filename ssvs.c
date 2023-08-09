@@ -25,23 +25,32 @@
 		[ ] when writing check for empty spot with fitting size
 */
 
+
+
 // tool funtions
+
 void replace_string_at_indices(char *from, int from_index, char *to, int to_index) {
-	
+
 	int from_length = strlen(from);
 	int to_length = strlen(to);
 	int length = to_length;
+
+	//printf("r_s_a_i: to_length=%d\n", to_length);
 
 	if (from_length < to_length) length = from_length;
 
 	for (int i = 0; i < length; i++) {
 		to[to_index+i] = from[from_index+i];
+		//printf("r_s_a_i: to(i=%d)=\"%s\"\n", i, to);
 	}
 }
 
 void error_prefix_print() {
 	printf("%s%serror%s: ", "\x1B[1m", "\x1B[31m", "\x1b[0m");
 }
+
+
+
 
 
 // Initialze the ssvs file
@@ -95,6 +104,7 @@ void ssvs_write_int(char file_path[], int var, unsigned char index) {
 	unsigned char addr[5];
 	sprintf(addr, "%04x", (unsigned short)length);
 	replace_string_at_indices(addr, 0, buf, 4+6*index);
+
 
 	fclose(hex_file);
 
@@ -154,31 +164,47 @@ int ssvs_read_int(char file_path[], unsigned char index) {
 	
 	unsigned char buf[length];
 	fgets(buf, length, hex_file);
-	
 
-	unsigned char size_hex[4]; 
+
+
+	unsigned char size_hex[] = "  "; // 2 spaces
 	replace_string_at_indices(buf, 2+6*index, size_hex, 0);
-	int size_int;
-	printf("read_int: size_hex=%s\n", size_hex);
-	// check if able to convert
+	int size_int;	
+	//printf("read_int: size_hex=%s\n", size_hex);
+	//printf("read_int: size_hex(length_2)=%ld\n", strlen(size_hex));
 	if (sscanf(size_hex, "%x", &size_int) != 1) {		
 		error_prefix_print();
 		printf("read_int: could not convert hex(size) to integer\n");
 	}
 
+	
 
-	unsigned char addr_hex[6]; 
+	unsigned char addr_hex[] = "    "; // 4 spaces 
 	replace_string_at_indices(buf, 4+6*index, addr_hex, 0);	
 	int addr_int;
-	printf("read_int: addr_hex=%s\n", addr_hex);
+	//printf("read_int: addr_hex=%s\n", addr_hex);
+	//printf("read_int: addr_hex(length_2)=%ld\n", strlen(addr_hex));
 	if (sscanf(addr_hex, "%x", &addr_int) != 1) {
 		error_prefix_print();
 		printf("read_int: could not convert hex(addr) to integer\n");
 	}
-	
+
+
+	unsigned char variable_hex[size_int];
+	strcat(variable_hex, "   "); // weird shit; we cant initialize without space
+	replace_string_at_indices(buf, addr_int, variable_hex, 0);
+	int variable_int;
+	//printf("read_int: size_int=%d\n", size_int);
+	//printf("read_int: variable_hex=%s\n", variable_hex);
+	if (sscanf(variable_hex, "%x", &variable_int) != 1) {
+		error_prefix_print();
+		printf("read_int: could not convert hex(variable) to integer\n");
+	}
+
+
 	fclose(hex_file);
 
-	return 0;
+	return variable_int;
 
 }
 
