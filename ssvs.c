@@ -39,14 +39,16 @@ void replace_string_at_indices(char *from, int from_index, char *to, int to_inde
 	}
 }
 
-
+void error_prefix_print() {
+	printf("%s%serror%s: ", "\x1B[1m", "\x1B[31m", "\x1b[0m");
+}
 
 
 // Initialze the ssvs file
 void ssvs_initialize_file(char file_path[], const unsigned char values) {
 	FILE *hex_file = fopen(file_path, "wb");
 	if (hex_file == NULL) {
-		printf("error: could not create/open file (%s).\n", file_path);
+		printf("could not create/open file (%s).\n", file_path);
 		return;
 	}
 
@@ -73,7 +75,7 @@ void ssvs_initialize_file(char file_path[], const unsigned char values) {
 void ssvs_write_int(char file_path[], int var, unsigned char index) {
 	FILE *hex_file = fopen(file_path, "rb");
 	if (hex_file == NULL) {
-		printf("error: could not create/open file (%s).\n", file_path);
+		printf("could not create/open file (%s).\n", file_path);
 		return;
 	}
 	
@@ -120,7 +122,8 @@ void ssvs_erase_variable(char file_path[], unsigned char index) {
 void ssvs_read_file(char file_path[]) {
 	FILE *hex_file = fopen(file_path, "rb");
 	if (hex_file == NULL) {
-		printf("error: could not create/open file (%s).\n", file_path);
+		error_prefix_print();
+		printf("could not create/open file (%s).\n", file_path);
 		return;
 	}
 
@@ -140,7 +143,8 @@ void ssvs_read_file(char file_path[]) {
 int ssvs_read_int(char file_path[], unsigned char index) {
 	FILE *hex_file = fopen(file_path, "rb");
 	if (hex_file == NULL) {
-		printf("error: could not create/open file (%s).\n", file_path);
+		error_prefix_print();
+		printf("could not create/open file (%s).\n", file_path);
 		return -1;
 	}
 
@@ -157,8 +161,9 @@ int ssvs_read_int(char file_path[], unsigned char index) {
 	int size_int;
 	printf("read_int: size_hex=%s\n", size_hex);
 	// check if able to convert
-	if (sscanf(size_hex, "%x", &size_int) != 1) {
-		printf("[ error ] read_int: could not convert hex(size) to integer\n");
+	if (sscanf(size_hex, "%x", &size_int) != 1) {		
+		error_prefix_print();
+		printf("read_int: could not convert hex(size) to integer\n");
 	}
 
 
@@ -167,7 +172,8 @@ int ssvs_read_int(char file_path[], unsigned char index) {
 	int addr_int;
 	printf("read_int: addr_hex=%s\n", addr_hex);
 	if (sscanf(addr_hex, "%x", &addr_int) != 1) {
-		printf("[ error ] read_int: could not convert hex(addr) to integer\n");
+		error_prefix_print();
+		printf("read_int: could not convert hex(addr) to integer\n");
 	}
 	
 	fclose(hex_file);
